@@ -96,43 +96,33 @@ service php5-fpm restart
 service nginx restart
 
 # install openvpn
-#wget -O /etc/openvpn/openvpn.tar "https://github.com/ForNesiaFreak/FNS/raw/master/sett/openvpn-debian.tar"
-#cd /etc/openvpn/
-#tar xf openvpn.tar
-#wget -O /etc/openvpn/1194.conf "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/null/1194.conf"
-#service openvpn restart
-#sysctl -w net.ipv4.ip_forward=1
-#sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-#wget -O /etc/iptables.up.rules "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/null/iptables.up.rules"
-#sed -i '$ i\iptables-restore < /etc/iptables.up.rules' /etc/rc.local
-#sed -i $MYIP2 /etc/iptables.up.rules;
-#iptables-restore < /etc/iptables.up.rules
-#service openvpn restart
+wget -O /etc/openvpn/openvpn.tar "https://github.com/ForNesiaFreak/FNS/raw/master/sett/openvpn-debian.tar"
+cd /etc/openvpn/
+tar xf openvpn.tar
+wget -O /etc/openvpn/1194.conf "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/null/1194.conf"
+service openvpn restart
+sysctl -w net.ipv4.ip_forward=1
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+wget -O /etc/iptables.up.rules "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/null/iptables.up.rules"
+sed -i '$ i\iptables-restore < /etc/iptables.up.rules' /etc/rc.local
+sed -i $MYIP2 /etc/iptables.up.rules;
+iptables-restore < /etc/iptables.up.rules
+service openvpn restart
 
-# configure openvpn client config
-#cd /etc/openvpn/
-#wget -O /etc/openvpn/1194-client.ovpn "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/null/1194-client.conf"
-#sed -i $MYIP2 /etc/openvpn/1194-client.ovpn;
+ configure openvpn client config
+cd /etc/openvpn/
+wget -O /etc/openvpn/1194-client.ovpn "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/null/1194-client.conf"
+sed -i $MYIP2 /etc/openvpn/1194-client.ovpn;
 PASS=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n 1`;
 useradd -M -s /bin/false fornesia
 echo "fornesia:$PASS" | chpasswd
-#echo "username" >> pass.txt
-#echo "password" >> pass.txt
-#tar cf client.tar 1194-client.ovpn pass.txt
-#cp client.tar /home/vps/public_html/
-#cp 1194-client.ovpn client.ovpn
-#cp client.ovpn /home/vps/public_html/
+echo "username" >> pass.txt
+echo "password" >> pass.txt
+tar cf client.tar 1194-client.ovpn pass.txt
+cp client.tar /home/vps/public_html/
+cp 1194-client.ovpn client.ovpn
+cp client.ovpn /home/vps/public_html/
 cd
-
-# install badvpn
-wget -O /usr/bin/badvpn-udpgw "https://github.com/ForNesiaFreak/FNS/raw/master/sett/badvpn-udpgw"
-if [ "$OS" == "x86_64" ]; then
-  wget -O /usr/bin/badvpn-udpgw "https://github.com/ForNesiaFreak/FNS/raw/master/sett/badvpn-udpgw64"
-fi
-sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.local
-chmod +x /usr/bin/badvpn-udpgw
-screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
-
 
 # install mrtg
 wget -O /etc/snmp/snmpd.conf "https://raw.githubusercontent.com/ForNesiaFreak/FNS_Debian7/fornesia.com/null/snmpd.conf"
@@ -159,27 +149,6 @@ sed -i 's/Port 22/Port 22/g' /etc/ssh/sshd_config
 sed -i '/Port 22/a Port 143' /etc/ssh/sshd_config
 sed -i 's/#Banner/Banner/g' /etc/ssh/sshd_config
 service ssh restart
-
-# install dropbear
-apt-get -y install dropbear
-sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
-sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=443/g' /etc/default/dropbear
-sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 443 -p 110 -p 109"/g' /etc/default/dropbear
-echo "/bin/false" >> /etc/shells
-echo "/usr/sbin/nologin" >> /etc/shells
-service ssh restart
-service dropbear restart
-
-# upgrade dropbear 2014
-apt-get install zlib1g-dev
-wget https://github.com/ForNesiaFreak/FNS/raw/master/go/dropbear-2014.63.tar.bz2
-bzip2 -cd dropbear-2014.63.tar.bz2  | tar xvf -
-cd dropbear-2014.63
-./configure
-make && make install
-mv /usr/sbin/dropbear /usr/sbin/dropbear1
-ln /usr/local/sbin/dropbear /usr/sbin/dropbear
-service dropbear restart
 
 # install vnstat gui
 cd /home/vps/public_html/
